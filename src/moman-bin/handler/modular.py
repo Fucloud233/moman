@@ -1,10 +1,9 @@
-import importlib.util
 from pathlib import Path
-import importlib
 
 import constants
 import errors
 from utils import read_yaml, write_yaml
+from handler.utils import import_interface
 
 from info.config.base import MomanModuleType
 from info.config.root import MomanRootConfig
@@ -43,30 +42,7 @@ class MomanModularHandler:
                 )
 
             # 校验模块文件中的对象是否存在
-            interface_spec = importlib.util.spec_from_file_location(
-                interface, interface_file
-            )
-            interface_module = importlib.util.module_from_spec(interface_spec)
-            interface_spec.loader.exec_module(interface_module)
-
-            interface_cname = \
-                interface[0].upper() + interface[1:] + "Interface"
-            interface_cname_full_upper = interface.upper() + "Interface"
-
-            interface_file_exists = False
-            try:
-                getattr(interface_module, interface_cname)
-                interface_file_exists = True
-            except AttributeError:
-                pass
-
-            try:
-                getattr(interface_module, interface_cname_full_upper)
-                interface_file_exists = True
-            except AttributeError:
-                pass
-
-            if not interface_file_exists:
+            if import_interface(interface_file, interface) is None:
                 raise errors.MomanModularError(
                     "interface class not found, path: %s" % interface_file
                 )
