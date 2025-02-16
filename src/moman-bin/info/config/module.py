@@ -36,7 +36,7 @@ class MomanModuleDependency:
 # entry 和 implement 的模块配置文件是一致的
 class MomanModuleConfig(MomanBaseConfig):
     __interface: str
-    __dependencies: List[MomanModuleDependency]
+    __dependencies: Dict[str, MomanModuleDependency]
     __packages: List[str]
 
     def __init__(
@@ -44,13 +44,13 @@ class MomanModuleConfig(MomanBaseConfig):
         module_type: MomanModuleType,
         name: str,
         interface: str,
-        dependencies: List[MomanModuleDependency],
+        dependencies: Dict[str, MomanModuleDependency],
         packages: List[str],
     ):
         super().__init__(module_type, name)
         self.__interface = interface
-        self.__dependencies = dependencies
         self.__packages = packages
+        self.__dependencies = dependencies
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "MomanModuleConfig":
@@ -70,23 +70,34 @@ class MomanModuleConfig(MomanBaseConfig):
         if 0 == len(interface):
             raise BaseException("xxx")
 
-        raw_dependencies: List[str] = data.get("dependencies", [])
+        raw_dependencies: List | Dict = data.get("dependencies", [])
+        if isinstance(raw_dependencies, Dict):
+            raw_dependencies = raw_dependencies.values()
+
+        def parse_dep_item(dep_data: str | Dict) -> MomanModuleDependency:
+            if isinstance(dep_data, str):
+                seqs = dep_data.split(":")
+                if len(seqs) < 2 or len(seqs) > 3:
+                    raise BaseException("xxx")
+
+                dep_interface = seqs[0]
+                dep_implement = seqs[1]
+                path = None
+                if len(seqs) == 3:
+                    path = Path(seqs[2])
+            else:
+                dep_interface = dep_data["interface"]
+                dep_implement = dep_data["implement"]
+                path = Path(dep_data["path"])
+
+            return MomanModuleDependency(dep_interface, dep_implement, path)
+
+        dependencies = {}
+        for raw_dep in raw_dependencies:
+            dep =  parse_dep_item(raw_dep)
+            dependencies[dep.implement] = dep
+
         packages: List[str] = data.get("python-package", [])
-
-        dependencies = []
-        for dependency in raw_dependencies:
-            seqs = dependency.split(":")
-            if len(seqs) < 2 or len(seqs) > 3:
-                raise BaseException("xxx")
-
-            dep_interface = seqs[0]
-            dep_name = seqs[1]
-            path = None
-            if len(seqs) == 3:
-                path = Path(seqs[2])
-            dependencies.append(
-                MomanModuleDependency(dep_interface, dep_name, path)
-            )
 
         return MomanModuleConfig(
             base_config.module_type, base_config.name, interface,
@@ -98,7 +109,7 @@ class MomanModuleConfig(MomanBaseConfig):
         return self.__interface
 
     @property
-    def dependencies(self) -> List[MomanModuleDependency]:
+    def dependencies(self) -> Dict[str, MomanModuleDependency]:
         return self.__dependencies
 
     @property

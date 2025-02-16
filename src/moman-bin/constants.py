@@ -1,6 +1,5 @@
 MOMAN_MODULE_CONFIG_NAME = "module.yaml"
-MOMAN_INTERFACE_FOLDER = ".moman/include/interface"
 
-MOMAN_FOLDER_NAMES = [MOMAN_INTERFACE_FOLDER, "build"]
+MOMAN_MODULAR_FILE = ".moman/modular.yaml"
 
 MOMAN_MODULE_CONFIG_K_TYPE = "type"

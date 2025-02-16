@@ -1,5 +1,4 @@
 import importlib.util
-from typing import Dict, Any
 from pathlib import Path
 import importlib
 
@@ -7,14 +6,17 @@ import constants
 import errors
 from utils import read_yaml, write_yaml
 
-from config.base import MomanModuleType
-from config.root import MomanRootConfig
-from config.module import MomanModuleConfig
+from info.config.base import MomanModuleType
+from info.config.root import MomanRootConfig
+from info.config.module import MomanModuleConfig
+from info.modular import MomanModularInfo
+
+# NOTICE: module 的 implement 是全局唯一的
 
 
 class MomanModularHandler:
     @staticmethod
-    def modular(path: Path):
+    def invoke(path: Path):
         MomanModularHandler.analyze_project(path)
 
     @staticmethod
@@ -90,7 +92,7 @@ class MomanModularHandler:
             module_config = queue.pop(0)
 
             deps = module_config.dependencies
-            for dep in deps:
+            for dep in deps.values():
                 # 判断指定的 interface 是否存在
                 if dep.interface not in root_config.interfaces:
                     raise errors.MomanModularError(
@@ -119,52 +121,13 @@ class MomanModularHandler:
                     dep_module_config
 
         # 保存解析结果
-        result = MomanModularHandler.__wrap_modular_result(
-            root_config, entry_config_file.parent, module_configs
+        result = MomanModularInfo(
+            root_config.entry_name, entry_config_file.parent,
+            root_config.interfaces, module_configs
         )
 
-        result_file_path = path.joinpath(".moman")
-        if not result_file_path.exists():
-            result_file_path.mkdir()
+        result_file = path.joinpath(constants.MOMAN_MODULAR_FILE)
+        if not result_file.parent.exists():
+            result_file.parent.mkdir()
 
-        write_yaml(result_file_path.joinpath("modular.yaml"), result)
-
-    @staticmethod
-    def __wrap_modular_result(
-            root_config: MomanRootConfig, entry_path: Path,
-            module_configs: Dict[Path, MomanModuleConfig]) -> Dict[str, Any]:
-        modular_result: Dict[str, Any] = {}
-
-        modular_result["entry"] = {
-            "name": root_config.entry_name, "path": str(entry_path)
-        }
-
-        modular_result["interfaces"] = root_config.interfaces
-
-        # 这里统一使用 interface:name key 值，方便索引
-        modular_result["modules"] = {
-            ("%s:%s" % (module_config.interface, module_config.name)): {
-                "name": module_config.name,
-                "interface": module_config.interface,
-                "path": str(path),
-                "dependencies": {
-                    ("%s:%s" % (dep.interface, dep.implement)): {
-                        "interface": dep.interface,
-                        "name": dep.implement,
-                        "path": str(dep.path),
-                    }
-                    for dep in module_config.dependencies
-                },
-                "packages": module_config.packages,
-            }
-            for path, module_config in module_configs.items()
-        }
-
-        package_count: Dict[str, int] = {}
-        for module_config in module_configs.values():
-            for package in module_config.packages:
-                count = package_count.get(package, 0) + 1
-                package_count[package] = count
-        modular_result["packageCount"] = package_count
-
-        return modular_result
+        write_yaml(result_file, result.to_dict())

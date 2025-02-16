@@ -38,6 +38,7 @@ class MomanModularInfo:
 
         # 这里统一使用 interface:name key 值，方便索引
         result["modules"] = {
+            # 这两个概念一致, 命名不同 module.name = dependency.implement
             module_config.name: {
                 "name": module_config.name,
                 "type": module_config.module_type.value,
@@ -46,10 +47,10 @@ class MomanModularInfo:
                 "dependencies": {
                     dep.implement: {
                         "interface": dep.interface,
-                        "name": dep.implement,
+                        "implement": dep.implement,
                         "path": str(dep.path),
                     }
-                    for dep in module_config.dependencies
+                    for dep in module_config.dependencies.values()
                 },
                 "packages": module_config.packages,
             }
@@ -72,3 +73,23 @@ class MomanModularInfo:
             modules[key] = MomanModuleConfig.from_dict(value)
 
         return MomanModularInfo(entry_name, entry_path, interfaces, modules)
+
+    @property
+    def entry_name(self) -> str:
+        return self.__entry_name
+
+    @property
+    def entry_path(self) -> Path:
+        return self.__entry_path
+
+    @property
+    def interfaces(self) -> List[str]:
+        return self.__interfaces
+
+    @property
+    def modules(self) -> Dict[str, MomanModuleConfig]:
+        return self.__modules
+
+    @property
+    def package_count(self) -> Dict[str, int]:
+        return self.__package_count
