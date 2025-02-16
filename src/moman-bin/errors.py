@@ -1,4 +1,3 @@
-
 class MomanBinError(BaseException):
     __kind: str
     __message: str
@@ -14,6 +13,11 @@ class MomanBinError(BaseException):
 class MomanModularError(MomanBinError):
     def __init__(self, message: str):
         super().__init__("modular", message)
+
+
+class MomanBuildError(MomanBinError):
+    def __init__(self, message: str):
+        super().__init__("build", message)
 
 
 class MomanConfigError(MomanBinError):
