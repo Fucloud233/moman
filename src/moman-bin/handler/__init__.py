@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from .modular import MomanModularHandler
-from .build import MomanBuildHandler
+from .build.handler import MomanBuildHandler
 
 
 class MomanCmdHandler:

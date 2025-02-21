@@ -1,16 +1,12 @@
 from pathlib import Path
-from types import NoneType
 from typing import Dict, Any, override
+from types import NoneType
 
 from moman.manager import MomanModuleManager
 from moman.interface import MomanModuleInterface
-from moman.manager.wrapper import register_wrapper_manager
 
-import constants
-from utils import read_yaml
-from errors import MomanBuildError
-from info.modular import MomanModularInfo
 from info.config.module import MomanModuleConfig, MomanModuleDependency
+from errors import MomanBuildError
 from handler.utils import import_implement
 
 
@@ -41,7 +37,8 @@ class MomanModuleManagerWrapper(MomanModuleManager):
     @override
     def get_module(
         self,
-        p_interface_name: str, p_implement: str,
+        p_interface_name: str,
+        p_implement: str,
         c_interface: str,
         c_implement: str | NoneType = None,
     ) -> MomanModuleInterface:
@@ -49,20 +46,19 @@ class MomanModuleManagerWrapper(MomanModuleManager):
         module_config = self.__module_config_map.get(p_interface_name, None)
         if module_config is None:
             raise MomanBuildError(
-                "current module is invalid, %s, %s"
-                % (p_interface_name, p_implement)
+                "current module is invalid, %s, %s" % (p_interface_name, p_implement)
             )
 
         # 2. 自动获取子模块的实现类型
         dep_map: Dict[str, MomanModuleDependency] = {}
         for dep in module_config.dependencies.values():
-            if c_interface == module_config.interface:
+            if c_interface == dep.interface:
                 dep_map[dep.implement] = dep
 
         dep: MomanModuleDependency | NoneType = None
         if c_implement is None:
             if len(dep_map) == 1:
-                dep = dep_map.values()[0]
+                dep = list(dep_map.values())[0]
             elif len(dep_map) > 1:
                 raise MomanBuildError("the implement is ambiguous")
         else:
@@ -79,53 +75,36 @@ class MomanModuleManagerWrapper(MomanModuleManager):
     def get_entry_module(
         self, entry_name: str, entry_path: Path
     ) -> MomanModuleInterface:
-        dep = MomanModuleDependency(entry_name, entry_name, entry_path)
+        module = self.__module_config_map[entry_name]
+        dep = MomanModuleDependency(module.interface, module.name, entry_path)
         return self.__inner_get_module(entry_name, dep)
 
     def __inner_get_module(
         self, p_implement_name: str, dep: MomanModuleDependency
     ) -> MomanModuleInterface:
         # 1. 从缓存中读取
-        module_context = self.__module_contexts.get(p_implement_name, {})
+        module_context = self.__module_contexts.get(p_implement_name, None)
 
-        if len(module_context) > 0:
+        if module_context is not None:
             implement = module_context.get_implement(dep.implement)
             if implement is not None:
                 return implement
 
         # 2. 通过文件读取
-        implement_file = dep.path.joinpath(dep.implement + ".py")
+        implement_file = dep.path.joinpath("__init__.py")
         implement_t: MomanModuleInterface | NoneType = import_implement(
             implement_file, dep.implement
         )
 
         if implement_t is None:
             raise MomanBuildError(
-                "module %s class not found, path: %s"
-                % (dep.implement, implement_file)
+                "module %s class not found, path: %s" % (dep.implement, implement_file)
             )
-
-        implement_c = implement_t(dep.interface, dep.implement)
+        
+        # 构造函数时只需要传入 implement 即可
+        implement_c = implement_t(dep.implement)
         self.__module_contexts.setdefault(
             p_implement_name, MomanModuleContext()
         ).save_implement(dep.implement, implement_c)
 
         return implement_c
-
-
-class MomanBuildHandler:
-    @staticmethod
-    def invoke(path: Path):
-        modular_file = path.joinpath(constants.MOMAN_MODULAR_FILE)
-
-        modular_info = MomanModularInfo.from_dict(
-            read_yaml(modular_file)
-        )
-        wrapper_manager = MomanModuleManagerWrapper(modular_info.modules)
-        register_wrapper_manager(wrapper_manager)
-
-        entry_module = wrapper_manager.get_entry_module(
-            modular_info.entry_name, modular_info.entry_path
-        )
-
-        entry_module.on_start()
