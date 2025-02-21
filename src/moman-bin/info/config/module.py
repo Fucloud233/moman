@@ -94,7 +94,7 @@ class MomanModuleConfig(MomanBaseConfig):
 
         dependencies = {}
         for raw_dep in raw_dependencies:
-            dep =  parse_dep_item(raw_dep)
+            dep = parse_dep_item(raw_dep)
             dependencies[dep.implement] = dep
 
         packages: List[str] = data.get("python-package", [])
