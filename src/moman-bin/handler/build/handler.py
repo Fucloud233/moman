@@ -1,8 +1,9 @@
-from pathlib import Path
-from typing import Dict
+from typing import Dict, override
 import sys
 
 from moman.manager.wrapper import register_wrapper_manager, get_wrapper_manager
+
+from ..base import MomanCmdHandler, MomanCmdKind, MomanCmdBaseConfig
 
 import constants
 from utils import read_yaml
@@ -12,9 +13,14 @@ from info.config.module import MomanModuleConfig
 from .manger import MomanModuleManagerWrapper
 
 
-class MomanBuildHandler:
-    @staticmethod
-    def invoke(path: Path):
+class MomanBuildHandler(MomanCmdHandler):
+    def __init__(self):
+        super().__init__(MomanCmdKind.Build)
+
+    @override
+    def invoke(self, config: MomanCmdBaseConfig):
+        path = config.path
+
         modular_file = path.joinpath(constants.MOMAN_MODULAR_FILE)
 
         modular_info = MomanModularInfo.from_dict(read_yaml(modular_file))

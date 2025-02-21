@@ -1,4 +1,7 @@
+from typing import override
 from pathlib import Path
+
+from .base import MomanCmdHandler, MomanCmdKind, MomanCmdBaseConfig
 
 import constants
 import errors
@@ -13,13 +16,15 @@ from info.modular import MomanModularInfo
 # NOTICE: module 的 implement 是全局唯一的
 
 
-class MomanModularHandler:
-    @staticmethod
-    def invoke(path: Path):
-        MomanModularHandler.analyze_project(path)
+class MomanModularHandler(MomanCmdHandler):
+    def __init__(self):
+        super().__init__(MomanCmdKind.Modular)
 
-    @staticmethod
-    def analyze_project(path: Path):
+    @override
+    def invoke(self, config: MomanCmdBaseConfig):
+        self.analyze_project(config.path)
+
+    def analyze_project(self, path: Path):
         # 读取根项目的模块配置文件
         root_config_file = path.joinpath(
             constants.MOMAN_MODULE_CONFIG_NAME
