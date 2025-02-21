@@ -1,15 +1,23 @@
 [project]
 name = "moman-bin"
-version = "0.1.0"
+version = "0.0.1"
 description = ""
 authors = [
     {name = "fucloud-macbook",email = "270928474@qq.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
-dependencies = [
-    "pyyaml (>=6.0.2,<7.0.0)"
+requires-python = ">=3.12"
+
+[tool.poetry]
+
+packages = [
+    { include = "moman-bin", from = "src" },
+    { include = "moman", from = "src" }
 ]
+
+
+[tool.poetry.dependencies]
+pyyaml = ">=6.0.2,<7.0.0"
 
 
 [build-system]
