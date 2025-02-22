@@ -6,7 +6,7 @@ from .base import MomanCmdHandler, MomanCmdKind, MomanCmdBaseConfig
 import constants
 import errors
 from utils import read_yaml, write_yaml
-from handler.utils import import_interface
+from handler.import_utils import import_interface
 
 from info.config.base import MomanModuleType
 from info.config.root import MomanRootConfig

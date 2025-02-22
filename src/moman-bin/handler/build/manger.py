@@ -7,7 +7,7 @@ from moman.interface import MomanModuleInterface
 
 from info.config.module import MomanModuleConfig, MomanModuleDependency
 from errors import MomanBuildError
-from handler.utils import import_implement
+from handler.import_utils import import_implement
 
 
 class MomanModuleContext:

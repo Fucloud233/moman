@@ -8,6 +8,7 @@ from errors import MomanCreateError
 import constants
 import utils
 from . import template
+from ..modular import MomanModularHandler
 
 
 class MomanCreateConfig(MomanCmdBaseConfig):
