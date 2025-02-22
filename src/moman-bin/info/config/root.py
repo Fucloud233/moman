@@ -30,6 +30,13 @@ class MomanRootConfig(MomanBaseConfig):
 
         return MomanRootConfig(base_config.name, entry_name, interfaces)
 
+    def to_dict(self) -> Dict[str, Any]:
+        result = super().to_dict()
+        result["entry"] = self.__entry_name
+        result["interfaces"] = self.__interfaces
+
+        return result
+
     @property
     def entry_name(self) -> str:
         return self.__entry_name

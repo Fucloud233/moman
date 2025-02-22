@@ -10,6 +10,11 @@ class MomanBinError(BaseException):
         return "[%s] %s" % (self.__kind, self.__message)
 
 
+class MomanCreateError(MomanBinError):
+    def __init__(self, message: str):
+        super().__init__("create", message)
+
+
 class MomanModularError(MomanBinError):
     def __init__(self, message: str):
         super().__init__("modular", message)

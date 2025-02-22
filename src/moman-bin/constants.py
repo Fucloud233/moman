@@ -1,5 +1,11 @@
+MOMAN_GIT_IGNORE_FILE = ".gitignore"
+
+MOMAN_CACHE_FOLDER = ".moman"
+
 MOMAN_MODULE_CONFIG_NAME = "module.yaml"
 
 MOMAN_MODULAR_FILE = ".moman/modular.yaml"
+
+MOMAN_ENTRY_DEFAULT_NAME = "entry"
 
 MOMAN_MODULE_CONFIG_K_TYPE = "type"

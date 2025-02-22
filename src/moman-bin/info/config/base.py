@@ -40,6 +40,12 @@ class MomanBaseConfig:
 
         return MomanBaseConfig(module_type, name)
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "type": self.__module_type.value,
+            "name": self.__name,
+        }
+
     @property
     def module_type(self) -> MomanModuleType:
         return self.__module_type
