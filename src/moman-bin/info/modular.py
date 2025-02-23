@@ -1,12 +1,12 @@
 # 项目分析完成之后的持久化数据
 
-from typing import List, Dict, Any
+from typing import List, Dict, Tuple, Any
 from pathlib import Path
 
 import constants
 import utils
 
-from .config.module import MomanModuleConfig
+from .config.module import MomanModuleConfig, MomanModuleDependency
 
 
 class MomanModularInfo:
@@ -15,18 +15,18 @@ class MomanModularInfo:
 
     __interfaces: List[str]
     # MomanModuleConfig 本身不存储 path, 因此使用 path 作为 key 值
-    __modules: Dict[str, MomanModuleConfig]
+    __modules: Dict[str, Tuple[MomanModuleConfig, Path]]
     __package_count: Dict[str, int] = {}
 
     def __init__(self, entry_name: str, entry_path: Path,
                  interfaces: List[str],
-                 modules: Dict[str, MomanModuleConfig]):
+                 modules: Dict[str, Tuple[MomanModuleConfig, Path]]):
         self.__entry_name = entry_name
         self.__entry_path = entry_path
         self.__interfaces = interfaces
         self.__modules = modules
 
-        for module_config in modules.values():
+        for module_config, _ in modules.values():
             for package in module_config.packages:
                 count = self.__package_count.get(package, 0) + 1
                 self.__package_count[package] = count
@@ -84,7 +84,7 @@ class MomanModularInfo:
                 },
                 "packages": module_config.packages,
             }
-            for path, module_config in self.__modules.items()
+            for module_config, path in self.__modules.values()
         }
 
         result["packageCount"] = self.__package_count
@@ -103,8 +103,8 @@ class MomanModularInfo:
         interfaces = data["interfaces"]
 
         modules: Dict[str, MomanModuleConfig] = {}
-        for value in data["modules"].values():
-            modules[Path(value["path"])] = MomanModuleConfig.from_dict(value)
+        for key, value in data["modules"].items():
+            modules[key] = (MomanModuleConfig.from_dict(value), Path(value["path"]))
 
         return MomanModularInfo(entry_name, entry_path, interfaces, modules)
 
@@ -126,7 +126,7 @@ class MomanModularInfo:
         return self.__interfaces
 
     @property
-    def modules(self) -> Dict[str, MomanModuleConfig]:
+    def modules(self) -> Dict[str, Tuple[MomanModuleConfig, Path]]:
         return self.__modules
 
     @property
