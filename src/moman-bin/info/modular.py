@@ -11,6 +11,7 @@ class MomanModularInfo:
     __entry_path: Path
 
     __interfaces: List[str]
+    # MomanModuleConfig 本身不存储 path, 因此使用 path 作为 key 值
     __modules: Dict[str, MomanModuleConfig]
     __package_count: Dict[str, int] = {}
 
@@ -69,8 +70,8 @@ class MomanModularInfo:
         interfaces = data["interfaces"]
 
         modules: Dict[str, MomanModuleConfig] = {}
-        for key, value in data["modules"].items():
-            modules[key] = MomanModuleConfig.from_dict(value)
+        for value in data["modules"].values():
+            modules[Path(value["path"])] = MomanModuleConfig.from_dict(value)
 
         return MomanModularInfo(entry_name, entry_path, interfaces, modules)
 
