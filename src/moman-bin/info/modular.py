@@ -37,6 +37,26 @@ class MomanModularInfo:
     def add_implement(self, implement: MomanModuleConfig, path: Path):
         self.__modules[str(path)] = implement
 
+    def add_module_deps(self, implement_name: str, deps: List[MomanModuleDependency]) -> bool:
+        """添加模块依赖，不做复杂的校验，需要外界保证正确
+
+        Args:
+            implement_name (str): 实现模块名称
+            deps (List[MomanModuleDependency]): 模块依赖列表
+
+        Returns:
+            bool: 是否成功添加
+        """
+
+        module, _ = self.__modules.get(implement_name, None)
+        if module is None:
+            return False
+
+        for dep in deps:
+            module.add_dep(dep)
+
+        return True
+
     def to_dict(self) -> Dict[str, Any]:
         result: Dict[str, Any] = {}
 

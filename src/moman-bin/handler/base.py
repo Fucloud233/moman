@@ -7,6 +7,7 @@ class MomanCmdKind(Enum):
     Create = "create"
     Modular = "modular"
     New = "new"
+    Add = "add"
     Build = "build"
 
 
