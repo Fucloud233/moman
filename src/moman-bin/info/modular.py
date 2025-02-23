@@ -3,6 +3,9 @@
 from typing import List, Dict, Any
 from pathlib import Path
 
+import constants
+import utils
+
 from .config.module import MomanModuleConfig
 
 
@@ -27,6 +30,12 @@ class MomanModularInfo:
             for package in module_config.packages:
                 count = self.__package_count.get(package, 0) + 1
                 self.__package_count[package] = count
+
+    def add_interface(self, interface_name: str):
+        self.__interfaces.append(interface_name)
+
+    def add_implement(self, implement: MomanModuleConfig, path: Path):
+        self.__modules[str(path)] = implement
 
     def to_dict(self) -> Dict[str, Any]:
         result: Dict[str, Any] = {}
@@ -62,6 +71,10 @@ class MomanModularInfo:
 
         return result
 
+    def to_path(self, path: Path):
+        info_path = path.joinpath(constants.MOMAN_MODULAR_FILE)
+        utils.write_yaml(info_path, self.to_dict())
+
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "MomanModularInfo":
         entry_name = data["entry"]["name"]
@@ -74,6 +87,11 @@ class MomanModularInfo:
             modules[Path(value["path"])] = MomanModuleConfig.from_dict(value)
 
         return MomanModularInfo(entry_name, entry_path, interfaces, modules)
+
+    @staticmethod
+    def from_path(path: Path) -> "MomanModularInfo":
+        info_path = path.joinpath(constants.MOMAN_MODULAR_FILE)
+        return MomanModularInfo.from_dict(utils.read_yaml(info_path))
 
     @property
     def entry_name(self) -> str:

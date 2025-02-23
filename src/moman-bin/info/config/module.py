@@ -44,8 +44,8 @@ class MomanModuleConfig(MomanBaseConfig):
         module_type: MomanModuleType,
         name: str,
         interface: str,
-        dependencies: Dict[str, MomanModuleDependency],
-        packages: List[str],
+        dependencies: Dict[str, MomanModuleDependency] = {},
+        packages: List[str] = [],
     ):
         super().__init__(module_type, name)
         self.__interface = interface
@@ -115,3 +115,27 @@ class MomanModuleConfig(MomanBaseConfig):
     @property
     def packages(self) -> List[str]:
         return self.__packages
+
+
+class MomanModuleEntryConfig(MomanModuleConfig):
+    def __init__(
+        self,
+        name: str,
+        interface: str,
+        dependencies: Dict[str, MomanModuleDependency] = {},
+        packages: List[str] = [],
+    ):
+        super().__init__(
+            MomanModuleType.Entry, name, interface, dependencies, packages
+        )
+
+
+class MomanModuleImplementConfig(MomanModuleConfig):
+    def __init__(
+        self,
+        name: str,
+        interface: str,
+        dependencies: Dict[str, MomanModuleDependency] = {},
+        packages: List[str] = [],
+    ):
+        super().__init__(MomanModuleType.Implement, name, interface, dependencies, packages)

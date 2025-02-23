@@ -6,6 +6,7 @@ from pathlib import Path
 class MomanCmdKind(Enum):
     Create = "create"
     Modular = "modular"
+    New = "new"
     Build = "build"
 
 

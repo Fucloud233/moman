@@ -20,6 +20,11 @@ class MomanModularError(MomanBinError):
         super().__init__("modular", message)
 
 
+class MomanNewError(MomanBinError):
+    def __init__(self, message: str):
+        super().__init__("new", message)
+
+
 class MomanBuildError(MomanBinError):
     def __init__(self, message: str):
         super().__init__("build", message)

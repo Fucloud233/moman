@@ -1,8 +1,12 @@
 MOMAN_GIT_IGNORE_FILE = ".gitignore"
 
 MOMAN_CACHE_FOLDER = ".moman"
+MOMAN_INTERFACE_FOLDER = "interface"
+
+MOMAN_MODULE_PY_PREFIX = ".py"
 
 MOMAN_MODULE_CONFIG_NAME = "module.yaml"
+MOMAN_MODULE_INIT_NAME = "__init__.py"
 
 MOMAN_MODULAR_FILE = ".moman/modular.yaml"
 
