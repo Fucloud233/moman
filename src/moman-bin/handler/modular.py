@@ -55,7 +55,7 @@ class MomanModularHandler(MomanCmdHandler):
         # 读取入口文件的
         entry_config_file = path.joinpath(
             root_config.entry_name, constants.MOMAN_MODULE_CONFIG_NAME
-        )
+        ).absolute()
 
         entry_config = MomanModuleConfig.from_dict(
             read_yaml(entry_config_file)

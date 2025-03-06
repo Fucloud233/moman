@@ -35,7 +35,7 @@ class MomanModularInfo:
         self.__interfaces.append(interface_name)
 
     def add_implement(self, implement: MomanModuleConfig, path: Path):
-        self.__modules[str(path)] = implement
+        self.__modules[implement.name] = (implement, path.absolute())
 
     def add_module_deps(self, implement_name: str, deps: List[MomanModuleDependency]) -> bool:
         """添加模块依赖，不做复杂的校验，需要外界保证正确
