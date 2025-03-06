@@ -1,6 +1,5 @@
 from typing import Tuple, override
-from types import NoneType, FunctionType
-from enum import Enum
+from types import NoneType
 from abc import ABCMeta
 from pathlib import Path
 import re
@@ -17,53 +16,30 @@ from handler import import_utils
 from . import template
 
 
-class MomanNewType(Enum):
-    Interface = "interface"
-    Implement = "implement"
-
-
-class MomanNewBaseConfig(MomanCmdBaseConfig):
-    __new_type: MomanNewType
+class MomanNewConfig(MomanCmdBaseConfig):
     # interface_name 分为全大小 or 全小写两种类型
     __interface_name: str
-
-    def __init__(self, path: Path, new_type: MomanNewType, interface_name: str):
-        super().__init__(path)
-        self.__new_type = new_type
-        self.__interface_name = interface_name
-
-    @property
-    def new_type(self) -> MomanNewType:
-        return self.__new_type
-
-    @property
-    def interface_name(self) -> str:
-        return self.__interface_name
-
-
-class MomanNewInterfaceConfig(MomanNewBaseConfig):
-    def __init__(self, path: Path, interface_name: str):
-        super().__init__(path, MomanNewType.Interface, interface_name)
-
-
-class MomanNewImplementConfig(MomanNewBaseConfig):
-    __implement_name: str
+    __implement_name: str | NoneType
     __implement_path: str | NoneType
 
     def __init__(
         self,
         path: Path,
         interface_name: str,
-        implement_name: str,
+        implement_name: str | NoneType = None,
         implement_path: Path | NoneType = None,
     ):
-        super().__init__(path, MomanNewType.Implement, interface_name)
-
+        super().__init__(path)
+        self.__interface_name = interface_name
         self.__implement_name = implement_name
         self.__implement_path = implement_path
 
     @property
-    def implement_name(self) -> str:
+    def interface_name(self) -> str:
+        return self.__interface_name
+
+    @property
+    def implement_name(self) -> str | NoneType:
         return self.__implement_name
 
     @property
@@ -77,22 +53,29 @@ class MomanNewHandler(MomanCmdHandler):
 
     @override
     def invoke(self, config: MomanCmdBaseConfig):
-        config: MomanNewBaseConfig = config
+        config: MomanNewConfig = config
+        interface_name = config.interface_name
 
-        match config.new_type:
-            case MomanNewType.Interface:
-                self.__invoke_interface(config)
-            case MomanNewType.Implement:
-                self.__invoke_implement(config)
+        exist_flag = self.__create_interface(config)
 
-    def __invoke_interface(self, config: MomanNewInterfaceConfig):
+        # 只创建 interface 时, 如果出现重复则会报错
+        if interface_name is None:
+            if exist_flag:
+                raise MomanNewError("interface {name} exists".format(name=interface_name))
+        else:
+            self.__create_implement(config)
+
+    def __create_interface(self, config: MomanNewConfig) -> bool:
         path = config.path
         raw_interface_name = config.interface_name
         interface_name = raw_interface_name.lower()
 
         interface_code_file, exists = self.__check_interface_exists(path, interface_name)
         if exists:
-            raise MomanNewError("interface {name} exists".format(name=interface_name))
+            return False
+
+        interface_code_folder = path.joinpath(interface_name)
+        interface_code_folder.mkdir(exist_ok=True)
 
         # interface 的类名支持大驼峰和全大写两种显示格式
         # 目前区分方法时根据用户传入的是全大写字符还是其他形式决定的
@@ -111,15 +94,15 @@ class MomanNewHandler(MomanCmdHandler):
         modular.add_interface(interface_name)
         modular.to_path(path)
 
-    def __invoke_implement(self, config: MomanNewImplementConfig):
+        return True
+
+    def __create_implement(self, config: MomanNewConfig):
         path = config.path
         interface_name = config.interface_name.lower()
         raw_implement_name = config.implement_name
         implement_name = raw_implement_name.lower()
 
-        interface_code_file, exists = self.__check_interface_exists(path, interface_name)
-        if not exists:
-            raise MomanNewError("interface {name} not found".format(name=interface_name))
+        interface_code_file = path.joinpath(interface_name, "interface.py")
 
         implement_code_file, exists = self.__check_implement_exists(path, interface_name, implement_name)
         if exists:
@@ -186,8 +169,8 @@ class MomanNewHandler(MomanCmdHandler):
             Tuple[Path, bool] 接口文件位置, 是否存在
         """
         interface_code_file = path.joinpath(
-            constants.MOMAN_INTERFACE_FOLDER,
-            interface_name + constants.MOMAN_MODULE_PY_PREFIX,
+            interface_name,
+            constants.MOMAN_INTERFACE_FOLDER + constants.MOMAN_MODULE_PY_PREFIX,
         )
 
         return interface_code_file, interface_code_file.exists()

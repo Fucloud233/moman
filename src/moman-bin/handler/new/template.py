@@ -18,12 +18,11 @@ class {interface_class_name}Interface(MomanModuleInterface):
     @abstractmethod
     def your_function(self, param1: str, param2: int) -> str:
         pass
-
 """
 
 MOMAN_NEW_IMPLEMENT_TEMPLATE = """\
-from types import override
-from interface.{interface_name} import {interface_class_name}
+from typing import override
+from {interface_name}.interface import {interface_class_name}
 
 
 class {implement_class_name}Implement({interface_class_name}):
@@ -41,7 +40,6 @@ class {implement_class_name}Implement({interface_class_name}):
     # 在下面实现之前定义的接口
 
 {func_list}
-
 """
 
 MOMAN_NEW_FUNC_TEMPLATE = """\
