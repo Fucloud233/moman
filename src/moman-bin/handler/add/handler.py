@@ -1,5 +1,4 @@
 from typing import List, override
-from enum import Enum
 from pathlib import Path
 import re
 
@@ -18,54 +17,27 @@ class MomanAddError(MomanBinError):
         super().__init__("add", message)
 
 
-class MomanAddType(Enum):
-    # 具体的模块依赖
-    Dependency = "dependency"
-    # python 依赖
-    Package = "package"
-
-
-class MomanAddBaseConfig(MomanCmdBaseConfig):
-    __add_type: MomanAddType
+class MomanAddConfig(MomanCmdBaseConfig):
     __implement_name: str
+    # 这里不需要传入 path, 因为所有的信息都会添加到 ModularInfo 之中
+    # 后续增加 isExternal 的标识，用于处理项目的模块
+    __dep_implements: List[str]
+    __packages: List[str]
 
-    def __init__(self, path: Path, add_type: MomanAddType, implement_name: str):
+    def __init__(self, path: Path, implement_name: str, dep_implements: List[str] = [], packages: List[str] = []):
         super().__init__(path)
 
-        self.__add_type = add_type
         self.__implement_name = implement_name
-
-    @property
-    def add_type(self) -> MomanAddType:
-        return self.__add_type
+        self.__dep_implements = dep_implements
+        self.__packages = packages
 
     @property
     def implement_name(self) -> str:
         return self.__implement_name
 
-
-class MomanAddDependencyConfig(MomanAddBaseConfig):
-    # 这里不需要传入 path, 因为所有的信息都会添加到 ModularInfo 之中
-    # 后续增加 isExternal 的标识，用于处理项目的模块
-    __dep_implements: List[str]
-
-    def __init__(self, path: Path, implement_name: str, dep_implements: List[str]):
-        super().__init__(path, MomanAddType.Dependency, implement_name)
-
-        self.__dep_implements = dep_implements
-
     @property
     def dep_implements(self) -> List[str]:
         return self.__dep_implements
-
-
-class MomanAddPackageConfig(MomanAddBaseConfig):
-    __packages: List[str]
-
-    def __init__(self, path: Path, implement_name: str, packages: List[str]):
-        super().__init__(path, MomanAddType.Package, implement_name)
-
-        self.__packages = packages
 
     @property
     def packages(self) -> List[str]:
@@ -78,14 +50,10 @@ class MomanAddHandler(MomanCmdHandler):
 
     @override
     def invoke(self, config: MomanCmdBaseConfig):
-        config: MomanAddBaseConfig = config
-        match config.add_type:
-            case MomanAddType.Dependency:
-                self.__invoke_add_dependency(config)
-            case MomanAddType.Package:
-                self.__invoke_add_package(config)
+        self.__invoke_add_dependency(config)
+        self.__invoke_add_package(config)
 
-    def __invoke_add_dependency(self, config: MomanAddDependencyConfig):
+    def __invoke_add_dependency(self, config: MomanAddConfig):
         path = config.path
         implement_name = config.implement_name
         dep_implements = config.dep_implements
@@ -126,7 +94,7 @@ class MomanAddHandler(MomanCmdHandler):
         module_config_file = module_config_folder.joinpath(constants.MOMAN_MODULE_CONFIG_NAME)
         self.__insert_yaml_list(module_config_file, "dependencies", dep_implements)
 
-    def __invoke_add_package(self, config: MomanAddPackageConfig):
+    def __invoke_add_package(self, config: MomanAddConfig):
         path = config.path
         implement_name = config.implement_name
         packages = config.packages

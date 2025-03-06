@@ -68,8 +68,6 @@ class MomanModularInfo:
             count = self.__package_count.get(package, 0)
             self.__package_count[package] = count + 1
 
-            print(self.__package_count)
-
     def to_dict(self) -> Dict[str, Any]:
         result: Dict[str, Any] = {}
 

@@ -24,6 +24,12 @@ class MomanCliExecutor:
         parser_new.add_argument("-n", "--name", help="the name of implement")
         parser_new.set_defaults(func=self.__execute_new)
 
+        parser_add = sub_parsers.add_parser("add", description="add module dependencies or python packages for module")
+        parser_add.add_argument("-n", "--name", required=True)
+        parser_add.add_argument("-d", "--deps", default="")
+        parser_add.add_argument("-p", "--packages", default="")
+        parser_add.set_defaults(func=self.__execute_add)
+
         self.__parser = parser
 
     def exec(self):
@@ -47,3 +53,12 @@ class MomanCliExecutor:
 
         config = MomanNewConfig(Path(os.curdir), args.interface, args.name)
         MomanNewHandler().invoke(config)
+
+    def __execute_add(self, args: Any):
+        from handler.add.handler import MomanAddHandler, MomanAddConfig
+
+        dependencies = args.deps.split(" ")
+        packages = args.packages.split(" ")
+
+        config = MomanAddConfig(Path(os.curdir), args.name, dependencies, packages)
+        MomanAddHandler().invoke(config)
