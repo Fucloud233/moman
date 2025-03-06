@@ -124,22 +124,56 @@ class MomanAddHandler(MomanCmdHandler):
 
         # 这里不能使用 yaml 修改, 会导致最终配置文件丢失格式
         module_config_file = module_config_folder.joinpath(constants.MOMAN_MODULE_CONFIG_NAME)
-        module_config_str = utils.read_file(module_config_file)
-
-        deps_key_str = "dependencies:"
-        raw_deps_key_strs = re.findall(r"dependencies:\s*\[\]", module_config_str)
-        print(raw_deps_key_strs)
-        if len(raw_deps_key_strs) == 1:
-            module_config_str = module_config_str.replace(
-                raw_deps_key_strs[0], deps_key_str, 1
-            )
-
-        for add_dep in add_deps:
-            module_config_str = module_config_str.replace(
-                deps_key_str, deps_key_str + "\n  - " + add_dep.implement, 1
-            )
-
-        utils.write_file(module_config_file, module_config_str)
+        self.__insert_yaml_list(module_config_file, "dependencies", dep_implements)
 
     def __invoke_add_package(self, config: MomanAddPackageConfig):
-        pass
+        path = config.path
+        implement_name = config.implement_name
+        packages = config.packages
+
+        modular = MomanModularInfo.from_path(path)
+        module_config, module_config_folder = modular.modules.get(implement_name, None)
+        if module_config is None:
+            raise MomanAddError(
+                "implement {name} not found".format(name=config.implement_name)
+            )
+
+        temp_packages: List[str] = []
+        for package in packages:
+            exist = False
+            for exist_package in module_config.packages:
+                if package == exist_package:
+                    exist = True
+                    break
+            if not exist:
+                temp_packages.append(package)
+
+        packages = temp_packages
+
+        if len(packages) == 0:
+            return
+
+        modular.add_packages(implement_name, packages)
+        modular.to_path(path)
+
+        module_config_file = module_config_folder.joinpath(
+            constants.MOMAN_MODULE_CONFIG_NAME
+        )
+        self.__insert_yaml_list(module_config_file, "python-packages", packages)
+
+    def __insert_yaml_list(self, path: str, key: str, data_list: List[str]):
+        module_config_str = utils.read_file(path)
+
+        key_str = key + ":"
+        key_strs = re.findall(key_str + r"\s*\[\]", module_config_str)
+        if len(key_strs) == 1:
+            module_config_str = module_config_str.replace(
+                key_strs[0], key_str, 1
+            )
+
+        for data in data_list:
+            module_config_str = module_config_str.replace(
+                key_str, key_str + "\n  - " + data, 1
+            )
+
+        utils.write_file(path, module_config_str)

@@ -1,5 +1,7 @@
 from typing import Dict, override
 import sys
+import os
+from pathlib import Path
 
 from moman.manager.wrapper import register_wrapper_manager, get_wrapper_manager
 
@@ -22,6 +24,9 @@ class MomanBuildHandler(MomanCmdHandler):
         path = config.path
 
         modular_file = path.joinpath(constants.MOMAN_MODULAR_FILE)
+
+        # 初始化 venv 环境
+        self.__init_venv(path)
 
         modular_info = MomanModularInfo.from_dict(read_yaml(modular_file))
         modules = modular_info.modules
@@ -49,6 +54,19 @@ class MomanBuildHandler(MomanCmdHandler):
             modular_info.entry_name, modular_info.entry_path
         )
         entry_module.on_stop()
+
+    def __init_venv(self, path: Path):
+        venv_config_folder = path.joinpath(constants.MOMAN_CACHE_FOLDER + "/venv")
+        if not venv_config_folder.exists():
+            os.system("python3 -m venv " + str(venv_config_folder))
+
+        activate_venv_script_file = venv_config_folder.joinpath("bin/activate")
+        print(activate_venv_script_file)
+        os.system("source " + str(activate_venv_script_file))
+
+        modular = MomanModularInfo.from_path(path)
+        for package in modular.packages:
+            os.system("pip install" + package)
 
     @staticmethod
     def __start_recursive(

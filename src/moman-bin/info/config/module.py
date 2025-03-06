@@ -55,6 +55,9 @@ class MomanModuleConfig(MomanBaseConfig):
     def add_dep(self, dep: MomanModuleDependency):
         self.dependencies[dep.implement] = dep
 
+    def add_package(self, package: str):
+        self.packages.append(package)
+
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "MomanModuleConfig":
         base_config = MomanBaseConfig.from_dict(data)

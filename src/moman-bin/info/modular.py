@@ -57,6 +57,19 @@ class MomanModularInfo:
 
         return True
 
+    def add_packages(self, implement_name: str, packages: List[str]) -> bool:
+        module, _ = self.__modules.get(implement_name, None)
+        if module is None:
+            return False
+
+        for package in packages:
+            module.add_package(package)
+
+            count = self.__package_count.get(package, 0)
+            self.__package_count[package] = count + 1
+
+            print(self.__package_count)
+
     def to_dict(self) -> Dict[str, Any]:
         result: Dict[str, Any] = {}
 
@@ -132,3 +145,7 @@ class MomanModularInfo:
     @property
     def package_count(self) -> Dict[str, int]:
         return self.__package_count
+
+    @property
+    def packages(self) -> List[str]:
+        return self.__package_count.values()
