@@ -9,9 +9,13 @@ class MomanCmdKind(Enum):
     New = "new"
     Add = "add"
     Build = "build"
+    Delete = "delete"  # TODO
+    Remove = "remove"  # TODO
 
 
 class MomanCmdBaseConfig:
+    # 值得注意的时, 执行 Create 时脚本路径与项目路径不同
+    # 其他脚本当前路径都必须是项目路径
     __path: Path
 
     def __init__(self, path: Path):
@@ -19,6 +23,7 @@ class MomanCmdBaseConfig:
 
     @property
     def path(self) -> Path:
+        """脚本执行当前的路径"""
         return self.__path
 
 

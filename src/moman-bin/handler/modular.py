@@ -67,7 +67,7 @@ class MomanModularHandler(MomanCmdHandler):
             )
 
         # 根据递归文件 BFS 读取所有依赖文件
-        module_configs = {entry_config_file.parent: entry_config}
+        module_configs = {entry_config.name: (entry_config, entry_config_file.parent)}
         queue = [entry_config]
         while len(queue) > 0:
             module_config = queue.pop(0)
@@ -98,8 +98,8 @@ class MomanModularHandler(MomanCmdHandler):
                     read_yaml(dep_module_config_file)
                 )
 
-                module_configs[dep_module_config_file.parent] = \
-                    dep_module_config
+                module_configs[dep_module_config.name] = \
+                    (dep_module_config, dep_module_config_file.parent)
 
         # 保存解析结果
         result = MomanModularInfo(
