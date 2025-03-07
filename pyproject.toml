@@ -1,5 +1,5 @@
 [project]
-name = "moman-bin"
+name = "moman"
 version = "0.0.1"
 description = ""
 authors = [
@@ -8,10 +8,13 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12"
 
+[project.scripts]
+moman = "moman_bin.main:main"
+
 [tool.poetry]
 
 packages = [
-    { include = "moman-bin", from = "src" },
+    { include = "moman_bin", from = "src" },
     { include = "moman", from = "src" }
 ]
 
