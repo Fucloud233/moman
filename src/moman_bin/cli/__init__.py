@@ -37,7 +37,7 @@ class MomanCliExecutor:
         args.func(args)
 
     def __execute_create(self, args: Any):
-        from handler.create.handler import MomanCreateHandler, MomanCreateConfig
+        from moman_bin.handler.create.handler import MomanCreateHandler, MomanCreateConfig
 
         project_path = args.path
         if project_path is not None:
@@ -49,13 +49,13 @@ class MomanCliExecutor:
         MomanCreateHandler().invoke(config)
 
     def __execute_new(self, args: Any):
-        from handler.new.handler import MomanNewHandler, MomanNewConfig
+        from moman_bin.handler.new.handler import MomanNewHandler, MomanNewConfig
 
         config = MomanNewConfig(Path(os.curdir), args.interface, args.name)
         MomanNewHandler().invoke(config)
 
     def __execute_add(self, args: Any):
-        from handler.add.handler import MomanAddHandler, MomanAddConfig
+        from moman_bin.handler.add.handler import MomanAddHandler, MomanAddConfig
 
         dependencies = args.deps.split(" ")
         packages = args.packages.split(" ")

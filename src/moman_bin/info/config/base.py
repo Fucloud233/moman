@@ -1,7 +1,7 @@
 from typing import Dict, Any
 from enum import Enum
 
-import errors
+from moman_bin.errors import MomanConfigError
 
 
 class MomanModuleType(Enum):
@@ -24,7 +24,7 @@ class MomanBaseConfig:
         raw_module_type: str = data.get("type", "")
         name: str = data.get("name", "")
         if len(raw_module_type) == 0 or len(name) == 0:
-            raise errors.MomanConfigError(
+            raise MomanConfigError(
                 "module type or name is empty, type: %s, name: %s"
                 % (raw_module_type, name)
             )
@@ -34,7 +34,7 @@ class MomanBaseConfig:
         )
 
         if MomanModuleType.Invalid == module_type:
-            raise errors.MomanConfigError(
+            raise MomanConfigError(
                 "module type is invalid, type: %s" % raw_module_type
             )
 

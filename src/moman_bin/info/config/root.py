@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
 
-import errors
+from moman_bin.errors import MomanConfigError
 from .base import MomanModuleType, MomanBaseConfig
 
 
@@ -18,7 +18,7 @@ class MomanRootConfig(MomanBaseConfig):
     def from_dict(data: Dict[str, Any]) -> "MomanRootConfig":
         base_config = MomanBaseConfig.from_dict(data)
         if MomanModuleType.Root != base_config.module_type:
-            raise errors.MomanConfigError(
+            raise MomanConfigError(
                 "current module is not root, type: %s"
                 % base_config.module_type
             )

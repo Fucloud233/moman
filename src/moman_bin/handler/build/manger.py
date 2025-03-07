@@ -5,9 +5,9 @@ from types import NoneType
 from moman.manager import MomanModuleManager
 from moman.interface import MomanModuleInterface
 
-from info.config.module import MomanModuleConfig, MomanModuleDependency
-from errors import MomanBuildError
-from handler.import_utils import import_implement
+from moman_bin.info.config.module import MomanModuleConfig, MomanModuleDependency
+from moman_bin.errors import MomanBuildError
+from moman_bin.handler.import_utils import import_implement
 
 
 class MomanModuleContext:

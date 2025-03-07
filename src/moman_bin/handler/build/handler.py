@@ -5,13 +5,11 @@ from pathlib import Path
 
 from moman.manager.wrapper import register_wrapper_manager, get_wrapper_manager
 
+from moman_bin import constants, utils
+from moman_bin.info.modular import MomanModularInfo
+from moman_bin.info.config.module import MomanModuleConfig
+
 from ..base import MomanCmdHandler, MomanCmdKind, MomanCmdBaseConfig
-
-import constants
-from utils import read_yaml
-from info.modular import MomanModularInfo
-from info.config.module import MomanModuleConfig
-
 from .manger import MomanModuleManagerWrapper
 
 
@@ -28,7 +26,7 @@ class MomanBuildHandler(MomanCmdHandler):
         # 初始化 venv 环境
         self.__init_venv(path)
 
-        modular_info = MomanModularInfo.from_dict(read_yaml(modular_file))
+        modular_info = MomanModularInfo.from_dict(utils.read_yaml(modular_file))
         modules = modular_info.modules
 
         wrapper_manager = MomanModuleManagerWrapper(modules)

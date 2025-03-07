@@ -6,9 +6,9 @@ import re
 
 from ..base import MomanCmdHandler, MomanCmdKind, MomanCmdBaseConfig
 
-import utils
-import constants
-from errors import MomanNewError
+from moman_bin import constants, utils
+from moman_bin. errors import MomanNewError
+
 from info.modular import MomanModularInfo
 from info.config.module import MomanModuleImplementConfig
 from handler import import_utils

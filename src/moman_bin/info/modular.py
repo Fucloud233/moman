@@ -3,8 +3,7 @@
 from typing import List, Dict, Tuple, Any
 from pathlib import Path
 
-import constants
-import utils
+from moman_bin import constants, utils
 
 from .config.module import MomanModuleConfig, MomanModuleDependency
 

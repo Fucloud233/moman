@@ -4,12 +4,10 @@ import re
 
 from ..base import MomanCmdHandler, MomanCmdKind, MomanCmdBaseConfig
 
-import constants
-import utils
-from errors import MomanBinError
-
-from info.config.module import MomanModuleDependency
-from info.modular import MomanModularInfo
+from moman_bin import constants, utils
+from moman_bin.errors import MomanBinError
+from moman_bin.info.config.module import MomanModuleDependency
+from moman_bin.info.modular import MomanModularInfo
 
 
 class MomanAddError(MomanBinError):
