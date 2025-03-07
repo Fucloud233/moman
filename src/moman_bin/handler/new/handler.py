@@ -4,15 +4,13 @@ from abc import ABCMeta
 from pathlib import Path
 import re
 
-from ..base import MomanCmdHandler, MomanCmdKind, MomanCmdBaseConfig
-
 from moman_bin import constants, utils
-from moman_bin. errors import MomanNewError
+from moman_bin.errors import MomanNewError
+from moman_bin.info.modular import MomanModularInfo
+from moman_bin.info.config.module import MomanModuleImplementConfig
 
-from info.modular import MomanModularInfo
-from info.config.module import MomanModuleImplementConfig
-from handler import import_utils
-
+from ..base import MomanCmdHandler, MomanCmdKind, MomanCmdBaseConfig
+from .. import import_utils
 from . import template
 
 
@@ -55,24 +53,24 @@ class MomanNewHandler(MomanCmdHandler):
     def invoke(self, config: MomanCmdBaseConfig):
         config: MomanNewConfig = config
         interface_name = config.interface_name
+        implement_name = config.implement_name
+        path = config.path
 
-        exist_flag = self.__create_interface(config)
+        _, exists = self.__check_interface_exists(path, interface_name)
 
-        # 只创建 interface 时, 如果出现重复则会报错
-        if interface_name is None:
-            if exist_flag:
+        if implement_name is None:
+            if exists:
                 raise MomanNewError("interface {name} exists".format(name=interface_name))
+            self.__create_interface(config)
         else:
+            if not exists:
+                raise MomanNewError("interface {name} not found".format(name=interface_name))
             self.__create_implement(config)
 
     def __create_interface(self, config: MomanNewConfig) -> bool:
         path = config.path
         raw_interface_name = config.interface_name
         interface_name = raw_interface_name.lower()
-
-        interface_code_file, exists = self.__check_interface_exists(path, interface_name)
-        if exists:
-            return False
 
         interface_code_folder = path.joinpath(interface_name)
         interface_code_folder.mkdir(exist_ok=True)
@@ -86,6 +84,8 @@ class MomanNewHandler(MomanCmdHandler):
             upper_interface_name=interface_name.upper(),
             interface_class_name=interface_class_name,
         )
+
+        interface_code_file = path.joinpath(interface_name, "interface.py")
 
         utils.write_file(interface_code_file, interface_code)
 

@@ -7,7 +7,7 @@ from moman.interface import MomanModuleInterface
 
 class {interface_class_name}Interface(MomanModuleInterface):
     def __init__(self, implement_name: str):
-        super().__init__(LLM_INTERFACE_NAME, implement_name)
+        super().__init__({upper_interface_name}_INTERFACE_NAME, implement_name)
 
     @staticmethod
     def get_interface_name() -> str:
