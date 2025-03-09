@@ -1,4 +1,4 @@
-from typing import Dict, override
+from typing import Dict, Tuple, override
 import sys
 import os
 from pathlib import Path
@@ -68,9 +68,10 @@ class MomanBuildHandler(MomanCmdHandler):
 
     @staticmethod
     def __start_recursive(
-        modules: Dict[str, MomanModuleConfig], cur_interface: str, cur_name: str
+        modules: Dict[str, Tuple[MomanModuleConfig, Path]], cur_interface: str, cur_name: str
     ):
-        deps = modules[cur_name].dependencies
+        module, _ = modules[cur_name]
+        deps = module.dependencies
         for dep in deps.values():
             MomanBuildHandler.__start_recursive(modules, dep.interface, dep.implement)
             module = get_wrapper_manager().get_module(
@@ -80,9 +81,12 @@ class MomanBuildHandler(MomanCmdHandler):
 
     @staticmethod
     def __stop_recursive(
-        modules: Dict[str, MomanModuleConfig], cur_interface: str, cur_name: str
+        modules: Dict[str, Tuple[MomanModuleConfig, Path]],
+        cur_interface: str,
+        cur_name: str,
     ):
-        deps = modules[cur_name].dependencies
+        module, _ = modules[cur_name]
+        deps = module.dependencies
         for dep in deps.values():
             MomanBuildHandler.__stop_recursive(modules, dep.implement, dep.implement)
             module = get_wrapper_manager().get_module(

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Any, override
+from typing import Dict, Tuple, Any, override
 from types import NoneType
 
 from moman.manager import MomanModuleManager
@@ -26,7 +26,7 @@ class MomanModuleContext:
 
 class MomanModuleManagerWrapper(MomanModuleManager):
     # 当前项目的模块依赖配置
-    __module_config_map: Dict[str, MomanModuleConfig] = {}
+    __module_config_map: Dict[str, Tuple[MomanModuleConfig, Path]] = {}
 
     # 当对象被创建之后，用于缓存在起来，不会重复创建
     __module_contexts: Dict[str, MomanModuleContext] = {}
@@ -43,7 +43,7 @@ class MomanModuleManagerWrapper(MomanModuleManager):
         c_implement: str | NoneType = None,
     ) -> MomanModuleInterface:
         # 1. 校验父模块是否合法
-        module_config = self.__module_config_map.get(p_interface_name, None)
+        module_config, _ = self.__module_config_map.get(p_interface_name, None)
         if module_config is None:
             raise MomanBuildError(
                 "current module is invalid, %s, %s" % (p_interface_name, p_implement)
@@ -75,7 +75,7 @@ class MomanModuleManagerWrapper(MomanModuleManager):
     def get_entry_module(
         self, entry_name: str, entry_path: Path
     ) -> MomanModuleInterface:
-        module = self.__module_config_map[entry_name]
+        module, _ = self.__module_config_map[entry_name]
         dep = MomanModuleDependency(module.interface, module.name, entry_path)
         return self.__inner_get_module(entry_name, dep)
 
@@ -100,9 +100,9 @@ class MomanModuleManagerWrapper(MomanModuleManager):
             raise MomanBuildError(
                 "module %s class not found, path: %s" % (dep.implement, implement_file)
             )
-        
-        # 构造函数时只需要传入 implement 即可
-        implement_c = implement_t(dep.implement)
+
+        # 构造函数通过代码自动生成处理，不需要额外传参
+        implement_c = implement_t()
         self.__module_contexts.setdefault(
             p_implement_name, MomanModuleContext()
         ).save_implement(dep.implement, implement_c)
