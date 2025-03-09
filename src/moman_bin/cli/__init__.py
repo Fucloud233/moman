@@ -3,6 +3,10 @@ from argparse import ArgumentParser
 from pathlib import Path
 import os
 
+from termcolor import colored
+
+from moman_bin.errors import MomanBinError
+
 
 class MomanCliExecutor:
     __parser: ArgumentParser
@@ -12,29 +16,62 @@ class MomanCliExecutor:
 
         sub_parsers = parser.add_subparsers()
 
-        parser_create = sub_parsers.add_parser("create", description="create your fist project.")
+        parser_create = sub_parsers.add_parser(
+            "create",
+            help="create your fist project.",
+            description="create your fist project.",
+        )
         parser_create.add_argument("-p", "--path", help="the path of project")
         parser_create.add_argument("-n", "--name", required=True, help="the name of project")
         parser_create.add_argument("-e", "--entry", default="entry", help="the name of first entry module")
         parser_create.add_argument("-g", "--git", action="store_true", help="use git or not, default not")
         parser_create.set_defaults(func=self.__execute_create)
 
-        parser_new = sub_parsers.add_parser("new", description="new module interface or implement")
-        parser_new.add_argument("-i", "--interface", required=True, help="the name of interface")
-        parser_new.add_argument("-n", "--name", help="the name of implement")
-        parser_new.set_defaults(func=self.__execute_new)
+        parser_interface = sub_parsers.add_parser(
+            "interface",
+            help="operate with the interface of module.",
+            description="operate with the interface of module.",
+        )
+        parser_interface.add_argument("-n", "--new", action="store_true")
+        parser_interface.add_argument("-d", "--delete", action="store_true")
+        parser_interface.add_argument("name")
+        parser_interface.set_defaults(func=self.__execute_interface)
 
-        parser_add = sub_parsers.add_parser("add", description="add module dependencies or python packages for module")
+        parser_implement = sub_parsers.add_parser(
+            "implement",
+            help="operate with the implement of module.",
+            description="operate with the implement of module.",
+        )
+        parser_implement.add_argument("-n", "--new", action="store_true")
+        parser_implement.add_argument("-d", "--delete", action="store_true")
+        parser_implement.add_argument("-i", "--interface")
+        parser_implement.add_argument("name")
+        parser_implement.set_defaults(func=self.__execute_implement)
+
+        parser_add = sub_parsers.add_parser(
+            "add",
+            help="add module dependencies or python packages for module.",
+            description="add module dependencies or python packages for module."
+        )
         parser_add.add_argument("-n", "--name", required=True)
         parser_add.add_argument("-d", "--deps", default="")
         parser_add.add_argument("-p", "--packages", default="")
         parser_add.set_defaults(func=self.__execute_add)
 
+        parser_add = sub_parsers.add_parser(
+            "remove",
+            help="remove module dependencies or python packages for module.",
+            description="remove module dependencies or python packages for module.",
+        )
+
         self.__parser = parser
 
     def exec(self):
-        args = self.__parser.parse_args()
-        args.func(args)
+        try:
+            args = self.__parser.parse_args()
+            args.func(args)
+        except MomanBinError as e:
+            print(colored("error: " + str(e), "red"))
 
     def __execute_create(self, args: Any):
         from moman_bin.handler.create.handler import MomanCreateHandler, MomanCreateConfig
@@ -48,11 +85,51 @@ class MomanCliExecutor:
         )
         MomanCreateHandler().invoke(config)
 
-    def __execute_new(self, args: Any):
-        from moman_bin.handler.new.handler import MomanNewHandler, MomanNewConfig
+    def __execute_interface(self, args: Any):
+        from moman_bin.handler.interface import MomanInterfaceHandler, MomanInterfaceConfig
+        from moman_bin.errors import MomanInterfaceError
+        from moman_bin.handler.base import MomanCmdOperateType
 
-        config = MomanNewConfig(Path(os.curdir), args.interface, args.name)
-        MomanNewHandler().invoke(config)
+        print(args)
+
+        name = args.name
+        new_flag = args.new
+        delete_flag = args.delete
+
+        if new_flag and delete_flag:
+            raise MomanInterfaceError("can not add and delete at the same time")
+
+        operate_type = MomanCmdOperateType.Add
+        if delete_flag:
+            operate_type = MomanCmdOperateType.Remove
+
+        config = MomanInterfaceConfig(Path(os.curdir), name, operate_type)
+        MomanInterfaceHandler().invoke(config)
+
+    def __execute_implement(self, args: Any):
+        from moman_bin.handler.implement import (
+            MomanImplementHandler,
+            MomanImplementConfig,
+        )
+        from moman_bin.errors import MomanInterfaceError
+        from moman_bin.handler.base import MomanCmdOperateType
+
+        print(args)
+
+        name = args.name
+        interface = args.interface
+        new_flag = args.new
+        delete_flag = args.delete
+
+        if new_flag and delete_flag:
+            raise MomanInterfaceError("can not add and delete at the same time")
+
+        operate_type = MomanCmdOperateType.Add
+        if delete_flag:
+            operate_type = MomanCmdOperateType.Remove
+
+        config = MomanImplementConfig(Path(os.curdir), interface, name, operate_type)
+        MomanImplementHandler().invoke(config)
 
     def __execute_add(self, args: Any):
         from moman_bin.handler.add.handler import MomanAddHandler, MomanAddConfig

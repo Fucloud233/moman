@@ -37,3 +37,11 @@ def __inner_import_class(path: Path, name: str, kind: MomanClassKind) -> Any | N
         pass
 
     return None
+
+
+def translate_to_class_name(raw: str) -> str:
+    class_name = raw
+    if not raw.isupper():
+        class_name = raw[0].upper() + raw[1:].lower()
+
+    return class_name
