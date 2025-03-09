@@ -3,9 +3,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 import os
 
-from termcolor import colored
-
 from moman_bin.errors import MomanBinError
+from moman_bin.utils import MomanLogger
 
 
 class MomanCliExecutor:
@@ -71,7 +70,7 @@ class MomanCliExecutor:
             args = self.__parser.parse_args()
             args.func(args)
         except MomanBinError as e:
-            print(colored("error: " + str(e), "red"))
+            MomanLogger.error(str(e))
 
     def __execute_create(self, args: Any):
         from moman_bin.handler.create.handler import MomanCreateHandler, MomanCreateConfig
