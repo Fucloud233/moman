@@ -3,13 +3,12 @@ from abc import ABCMeta
 from pathlib import Path
 import re
 
-from moman_bin import utils, constants
+from moman_bin import utils, constants, template
 from moman_bin.info.modular import MomanModularInfo
 from moman_bin.info.config.module import MomanModuleImplementConfig
 from moman_bin.errors import MomanImplementError
 
-
-from .. import import_utils, template
+from .. import import_utils
 from ..base import (
     MomanCmdHandler,
     MomanCmdKind,

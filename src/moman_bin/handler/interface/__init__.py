@@ -1,13 +1,12 @@
 from typing import Tuple, override
 from pathlib import Path
 
-from moman_bin import utils, constants
+from moman_bin import utils, constants, template
 from moman_bin.info.modular import MomanModularInfo
 from moman_bin.errors import MomanInterfaceError
 
 from .. import import_utils
 from ..base import MomanCmdHandler, MomanCmdKind, MomanCmdBaseConfig, MomanCmdOperateType
-from .. import template
 
 
 class MomanInterfaceConfig(MomanCmdBaseConfig):
