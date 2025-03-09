@@ -88,6 +88,8 @@ class MomanImplementHandler(MomanCmdHandler):
             )
 
         implement_code = template.MOMAN_NEW_IMPLEMENT_TEMPLATE.format(
+            implement_name=implement_name,
+            upper_implement_name=implement_name.upper(),
             interface_name=interface_name,
             interface_class_name=interface_class_name,
             implement_class_name=implement_class_name,

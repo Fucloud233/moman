@@ -24,10 +24,12 @@ MOMAN_NEW_IMPLEMENT_TEMPLATE = """\
 from typing import override
 from {interface_name}.interface import {interface_class_name}
 
+{upper_implement_name}_IMPLEMENT_NAME = "{implement_name}"
+
 
 class {implement_class_name}Implement({interface_class_name}):
     def __init__(self):
-        pass
+        super().__init__({upper_implement_name}_IMPLEMENT_NAME)
 
     @override
     def on_start(self):
