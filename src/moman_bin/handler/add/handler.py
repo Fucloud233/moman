@@ -48,8 +48,11 @@ class MomanAddHandler(MomanCmdHandler):
 
     @override
     def invoke(self, config: MomanCmdBaseConfig):
-        self.__invoke_add_dependency(config)
-        self.__invoke_add_package(config)
+        config: MomanAddConfig = config
+        if len(config.dep_implements) > 0:
+            self.__invoke_add_dependency(config)
+        if len(config.packages) > 0:
+            self.__invoke_add_package(config)
 
     def __invoke_add_dependency(self, config: MomanAddConfig):
         path = config.path
@@ -101,7 +104,7 @@ class MomanAddHandler(MomanCmdHandler):
         module_config, module_config_folder = modular.modules.get(implement_name, None)
         if module_config is None:
             raise MomanAddError(
-                "implement {name} not found".format(name=config.implement_name)
+                "implement module {name} not found".format(name=config.implement_name)
             )
 
         temp_packages: List[str] = []

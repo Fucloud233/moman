@@ -133,8 +133,8 @@ class MomanCliExecutor:
     def __execute_add(self, args: Any):
         from moman_bin.handler.add.handler import MomanAddHandler, MomanAddConfig
 
-        dependencies = args.deps.split(" ")
-        packages = args.packages.split(" ")
+        dependencies = args.deps.split(" ") if len(args.deps) > 0 else []
+        packages = args.packages.split(" ") if len(args.packages) > 0 else []
 
         config = MomanAddConfig(Path(os.curdir), args.name, dependencies, packages)
         MomanAddHandler().invoke(config)
