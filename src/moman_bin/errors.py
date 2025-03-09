@@ -7,7 +7,7 @@ class MomanBinError(BaseException):
         self.__message = message
 
     def __str__(self) -> str:
-        return "[%s] %s" % (self.__kind, self.__message)
+        return "%s - %s" % (self.__kind, self.__message)
 
 
 class MomanCreateError(MomanBinError):
