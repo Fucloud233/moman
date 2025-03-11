@@ -49,6 +49,26 @@ MOMAN_NEW_FUNC_TEMPLATE = """\
     {signature}
         pass"""
 
+MOMAN_NEW_ENTRY_TEMPLATE = """\
+from typing import override
+from moman.interface import MomanModuleInterface
+
+ENTRY_NAME = "entry"
+
+
+class EntryImplement(MomanModuleInterface):
+    def __init__(self):
+        super().__init__(ENTRY_NAME, ENTRY_NAME)
+
+    @override
+    def on_start(self):
+        pass
+
+    @override
+    def on_stop(self):
+        pass
+"""
+
 MOMAN_NEW_IMPLEMENT_MODULE_TEMPLATE = """\
 type: "implement"
 name: "{implement_name}"

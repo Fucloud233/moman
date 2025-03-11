@@ -92,6 +92,8 @@ class MomanCreateHandler(MomanCmdHandler):
         entry_folder = project_path.joinpath(entry_name)
         entry_folder.mkdir(exist_ok=True)
 
+        entry_implement_file = entry_folder.joinpath(constants.MOMAN_MODULE_INIT_NAME)
+        utils.write_file(entry_implement_file, template.MOMAN_NEW_ENTRY_TEMPLATE)
         entry_module_file = entry_folder.joinpath(constants.MOMAN_MODULE_CONFIG_NAME)
         utils.write_file(
             entry_module_file,
