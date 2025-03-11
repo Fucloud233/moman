@@ -92,7 +92,7 @@ class MomanModularInfo:
                     }
                     for dep in module_config.dependencies.values()
                 },
-                "packages": module_config.packages,
+                "python-packages": module_config.packages,
             }
             for module_config, path in self.__modules.values()
         }
@@ -115,7 +115,6 @@ class MomanModularInfo:
         modules: Dict[str, MomanModuleConfig] = {}
         for key, value in data["modules"].items():
             modules[key] = (MomanModuleConfig.from_dict(value), Path(value["path"]))
-
         return MomanModularInfo(entry_name, entry_path, interfaces, modules)
 
     @staticmethod
@@ -145,4 +144,4 @@ class MomanModularInfo:
 
     @property
     def packages(self) -> List[str]:
-        return self.__package_count.values()
+        return self.__package_count.keys()

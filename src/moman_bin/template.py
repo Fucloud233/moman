@@ -78,7 +78,7 @@ interface: "{interface_name}"
 dependencies: []
 
 # 依赖的 python 模块内容
-python-package: []
+python-packages: []
 """
 
 GITIGNORE_FILE_TEMPLATE = """\

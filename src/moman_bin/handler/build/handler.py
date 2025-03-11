@@ -21,12 +21,11 @@ class MomanBuildHandler(MomanCmdHandler):
     def invoke(self, config: MomanCmdBaseConfig):
         path = config.path
 
-        modular_file = path.joinpath(constants.MOMAN_MODULAR_FILE)
+        modular_info = MomanModularInfo.from_path(path)
 
-        # 初始化 venv 环境
-        self.__init_venv(path)
+        # 安装 python 库
+        self.__install_packages(path, modular_info)
 
-        modular_info = MomanModularInfo.from_dict(utils.read_yaml(modular_file))
         modules = modular_info.modules
 
         wrapper_manager = MomanModuleManagerWrapper(modules)
@@ -53,18 +52,21 @@ class MomanBuildHandler(MomanCmdHandler):
         )
         entry_module.on_stop()
 
-    def __init_venv(self, path: Path):
-        venv_config_folder = path.joinpath(constants.MOMAN_CACHE_FOLDER + "/venv")
-        if not venv_config_folder.exists():
-            os.system("python3 -m venv " + str(venv_config_folder))
+    def __install_packages(self, path: Path, modular: MomanModularInfo):
+        requirements_files = path.joinpath(constants.MOMAN_CACHE_FOLDER, "requirements.txt")
 
-        activate_venv_script_file = venv_config_folder.joinpath("bin/activate")
-        print(activate_venv_script_file)
-        os.system("source " + str(activate_venv_script_file))
-
-        modular = MomanModularInfo.from_path(path)
-        for package in modular.packages:
-            os.system("pip install" + package)
+        if not requirements_files.exists():
+            utils.write_file(requirements_files, "\n".join(modular.packages))
+            os.system("pip install -r " + str(requirements_files))
+        else:
+            packages_set = set(utils.read_file(requirements_files).splitlines())
+            for package in modular.packages:
+                if package in packages_set:
+                    packages_set.remove(package)
+            if len(packages_set) != 0:
+                packages = " ".join(packages_set)
+                os.system("pip install " + packages)
+                utils.write_file(requirements_files, "\n".join(modular.packages))
 
     @staticmethod
     def __start_recursive(

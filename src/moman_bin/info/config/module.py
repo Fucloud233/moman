@@ -103,7 +103,7 @@ class MomanModuleConfig(MomanBaseConfig):
             dep = parse_dep_item(raw_dep)
             dependencies[dep.implement] = dep
 
-        packages: List[str] = data.get("python-package", [])
+        packages: List[str] = data.get("python-packages", [])
 
         return MomanModuleConfig(
             base_config.module_type, base_config.name, interface,
