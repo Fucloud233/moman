@@ -75,7 +75,6 @@ class MomanCreateHandler(MomanCmdHandler):
         except FileExistsError:
             raise MomanCreateError("path %s is not empty" % str(project_path))
 
-        # 处理根项目
         project_path.joinpath(constants.MOMAN_CACHE_FOLDER).mkdir(exist_ok=True)
 
         root_module_path = project_path.joinpath(constants.MOMAN_MODULE_CONFIG_NAME)
@@ -86,7 +85,8 @@ class MomanCreateHandler(MomanCmdHandler):
             ),
         )
 
-        project_path.joinpath(constants.MOMAN_INTERFACE_FOLDER).mkdir(exist_ok=True)
+        # 除了入口模块之外的所有模块否存放在 modules 目录下
+        project_path.joinpath(constants.MOMAN_MODULES_FOLDER).mkdir(exist_ok=True)
 
         # 处理 entry 目录文件
         entry_folder = project_path.joinpath(entry_name)

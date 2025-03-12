@@ -36,18 +36,14 @@ class MomanBuildHandler(MomanCmdHandler):
         sys.path.append(str(path))
 
         # 启动 modules
-        MomanBuildHandler.__start_recursive(
-            modules, modular_info.entry_name, modular_info.entry_name
-        )
+        MomanBuildHandler.__start_recursive(modules, modular_info.entry_name)
         entry_module = get_wrapper_manager().get_entry_module(
             modular_info.entry_name, modular_info.entry_path
         )
         entry_module.on_start()
 
         # 停止 modules
-        MomanBuildHandler.__stop_recursive(
-            modules, modular_info.entry_name, modular_info.entry_name
-        )
+        MomanBuildHandler.__stop_recursive(modules, modular_info.entry_name)
         entry_module = get_wrapper_manager().get_entry_module(
             modular_info.entry_name, modular_info.entry_path
         )
@@ -71,28 +67,31 @@ class MomanBuildHandler(MomanCmdHandler):
 
     @staticmethod
     def __start_recursive(
-        modules: Dict[str, Tuple[MomanModuleConfig, Path]], cur_interface: str, cur_name: str
+        modules: Dict[str, Tuple[MomanModuleConfig, Path]], cur_name: str
     ):
         module, _ = modules[cur_name]
         deps = module.dependencies
         for dep in deps.values():
-            MomanBuildHandler.__start_recursive(modules, dep.interface, dep.implement)
+            MomanBuildHandler.__start_recursive(modules, dep.implement)
+
+            dep_module_config, _ = modules[dep.implement]
             module = get_wrapper_manager().get_module(
-                cur_interface, cur_name, dep.interface, dep.implement
+                cur_name, dep_module_config.interface, dep.implement
             )
             module.on_start()
 
     @staticmethod
     def __stop_recursive(
         modules: Dict[str, Tuple[MomanModuleConfig, Path]],
-        cur_interface: str,
         cur_name: str,
     ):
         module, _ = modules[cur_name]
         deps = module.dependencies
         for dep in deps.values():
-            MomanBuildHandler.__stop_recursive(modules, dep.implement, dep.implement)
+            MomanBuildHandler.__stop_recursive(modules, dep.implement)
+
+            dep_module_config, _ = modules[dep.implement]
             module = get_wrapper_manager().get_module(
-                cur_interface, cur_name, dep.interface, dep.implement
+                cur_name, dep_module_config.interface, dep.implement
             )
             module.on_stop()

@@ -86,7 +86,7 @@ class MomanAddHandler(MomanCmdHandler):
                 )
 
             # 为模块添加路径
-            add_deps.append(MomanModuleDependency(module.interface, module.name, module_path))
+            add_deps.append(MomanModuleDependency(module.name, module_path))
 
         modular.add_module_deps(implement_name, add_deps)
         modular.to_path(path)

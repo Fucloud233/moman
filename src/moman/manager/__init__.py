@@ -11,7 +11,6 @@ class MomanModuleManager(metaclass=ABCMeta):
     @abstractmethod
     def get_module(
         self,
-        p_interface_name: str,
         p_implement: str,
         c_interface: str,
         c_implement: str | NoneType = None,

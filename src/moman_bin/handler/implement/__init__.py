@@ -55,7 +55,7 @@ class MomanImplementHandler(MomanCmdHandler):
         raw_implement_name = config.implement_name
         implement_name = raw_implement_name.lower()
 
-        interface_code_file = path.joinpath(interface_name, "interface.py")
+        interface_code_file = path.joinpath(constants.MOMAN_MODULES_FOLDER, interface_name, "interface.py")
 
         implement_code_file, exists = self.__check_implement_exists(
             path, interface_name, implement_name
@@ -96,7 +96,7 @@ class MomanImplementHandler(MomanCmdHandler):
             func_list=func_list,
         )
 
-        implement_code_folder = path.joinpath(interface_name, implement_name)
+        implement_code_folder = path.joinpath(constants.MOMAN_MODULES_FOLDER, interface_name, implement_name)
         implement_code_folder.mkdir(parents=True, exist_ok=True)
 
         implement_code_file = implement_code_folder.joinpath(
@@ -132,7 +132,7 @@ class MomanImplementHandler(MomanCmdHandler):
             Tuple[Path, bool]: 实现文件位置, 是否存在
         """
         implement_code_file = path.joinpath(
-            interface_name, implement_name, constants.MOMAN_MODULE_INIT_NAME
+            constants.MOMAN_MODULES_FOLDER, interface_name, implement_name, constants.MOMAN_MODULE_INIT_NAME
         )
 
         return implement_code_file, implement_code_file.exists()

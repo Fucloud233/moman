@@ -45,22 +45,23 @@ class MomanModuleManagerWrapper(MomanModuleManager):
     @override
     def get_module(
         self,
-        p_interface_name: str,
         p_implement: str,
         c_interface: str,
         c_implement: str | NoneType = None,
     ) -> MomanModuleInterface:
         # 1. 校验父模块是否合法
-        module_config, _ = self.__module_config_map.get(p_interface_name, None)
+        module_config, _ = self.__module_config_map.get(p_implement, None)
         if module_config is None:
             raise MomanBuildError(
-                "current module is invalid, %s, %s" % (p_interface_name, p_implement)
+                "current module is invalid, name: %s" % (p_implement)
             )
 
         # 2. 自动获取子模块的实现类型
         dep_map: Dict[str, MomanModuleDependency] = {}
         for dep in module_config.dependencies.values():
-            if c_interface == dep.interface:
+            # dep 不保存 interface 信息, 因此需要反查获取
+            dep_module_config, _ = self.__module_config_map[dep.implement]
+            if c_interface == dep_module_config.interface:
                 dep_map[dep.implement] = dep
 
         dep: MomanModuleDependency | NoneType = None
@@ -94,7 +95,7 @@ class MomanModuleManagerWrapper(MomanModuleManager):
         self, entry_name: str, entry_path: Path
     ) -> MomanModuleInterface:
         module, _ = self.__module_config_map[entry_name]
-        dep = MomanModuleDependency(module.interface, module.name, entry_path)
+        dep = MomanModuleDependency(module.name, entry_path)
         return self.__inner_get_module(entry_name, dep)
 
     def __inner_get_module(

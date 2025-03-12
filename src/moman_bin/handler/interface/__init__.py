@@ -47,7 +47,7 @@ class MomanInterfaceHandler(MomanCmdHandler):
         if exists:
             raise MomanInterfaceError("interface {name} exists".format(name=interface_name))
 
-        interface_code_folder = path.joinpath(interface_name)
+        interface_code_folder = path.joinpath(constants.MOMAN_MODULES_FOLDER, interface_name)
         interface_code_folder.mkdir(exist_ok=True)
 
         # interface 的类名支持大驼峰和全大写两种显示格式
@@ -80,8 +80,8 @@ class MomanInterfaceHandler(MomanCmdHandler):
             Tuple[Path, bool] 接口文件位置, 是否存在
         """
         interface_code_file = path.joinpath(
-            interface_name,
-            constants.MOMAN_INTERFACE_FOLDER + constants.MOMAN_MODULE_PY_PREFIX,
+            constants.MOMAN_MODULES_FOLDER, interface_name,
+            constants.MOMAN_INTERFACE_NAME
         )
 
         return interface_code_file, interface_code_file.exists()

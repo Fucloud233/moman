@@ -29,7 +29,7 @@ class MomanModuleInterface(metaclass=ABCMeta):
         # 获取模块时需要带上自身的信息用于校验
         return MomanModuleManager.instance().get_module(
             # getInterfaceName 静态函数，获取接口的 interfaceName
-            self.__interface_name, self.__implement_name, interface.get_interface_name(), implement
+            self.__implement_name, interface.get_interface_name(), implement
         )
 
     def get_config(self, key: str, default: Any | NoneType = None) -> Any:

@@ -103,8 +103,6 @@ class MomanCliExecutor:
         from moman_bin.errors import MomanInterfaceError
         from moman_bin.handler.base import MomanCmdOperateType
 
-        print(args)
-
         name = args.name
         new_flag = args.new
         delete_flag = args.delete
@@ -126,8 +124,6 @@ class MomanCliExecutor:
         )
         from moman_bin.errors import MomanInterfaceError
         from moman_bin.handler.base import MomanCmdOperateType
-
-        print(args)
 
         name = args.name
         interface = args.interface

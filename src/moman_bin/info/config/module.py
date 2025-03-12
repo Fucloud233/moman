@@ -7,23 +7,18 @@ from moman_bin.errors import MomanConfigError
 from .base import MomanBaseConfig, MomanModuleType
 
 
+#  implement_name 能够唯一确定一个模块实现, 因此无需额外引入 interface
 class MomanModuleDependency:
-    __interface: str
     __implement: str
     # None 表示配置文件中没有指定，使用默认处理逻辑
     __path: Path | NoneType
 
-    def __init__(self, interface: str, implement: str, path: Path | None):
-        self.__interface = interface
+    def __init__(self, implement: str, path: Path | None):
         self.__implement = implement
         self.__path = path
 
     def update_path(self, path: Path):
         self.__path = path
-
-    @property
-    def interface(self) -> str:
-        return self.__interface
 
     @property
     def implement(self) -> str:
@@ -93,20 +88,19 @@ class MomanModuleConfig(MomanBaseConfig):
         def parse_dep_item(dep_data: str | Dict) -> MomanModuleDependency:
             if isinstance(dep_data, str):
                 seqs = dep_data.split(":")
-                if len(seqs) < 2 or len(seqs) > 3:
-                    raise BaseException("xxx")
-
-                dep_interface = seqs[0]
-                dep_implement = seqs[1]
+                if len(seqs) > 2:
+                    raise MomanConfigError(
+                        "dependencies format invalid in %s, descriptor: %s" % (base_config.name, dep_data)
+                    )
+                dep_implement = seqs[0]
                 path = None
-                if len(seqs) == 3:
-                    path = Path(seqs[2])
+                if len(seqs) == 2:
+                    path = Path(seqs[1])
             else:
-                dep_interface = dep_data["interface"]
                 dep_implement = dep_data["implement"]
                 path = Path(dep_data["path"])
 
-            return MomanModuleDependency(dep_interface, dep_implement, path)
+            return MomanModuleDependency(dep_implement, path)
 
         dependencies = {}
         for raw_dep in raw_dependencies:

@@ -86,7 +86,6 @@ class MomanModularInfo:
                 "path": str(path),
                 "dependencies": {
                     dep.implement: {
-                        "interface": dep.interface,
                         "implement": dep.implement,
                         "path": str(dep.path),
                     }

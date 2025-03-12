@@ -22,7 +22,7 @@ class {interface_class_name}Interface(MomanModuleInterface):
 
 MOMAN_NEW_IMPLEMENT_TEMPLATE = """\
 from typing import override
-from {interface_name}.interface import {interface_class_name}
+from modules.{interface_name}.interface import {interface_class_name}
 
 {upper_implement_name}_IMPLEMENT_NAME = "{implement_name}"
 

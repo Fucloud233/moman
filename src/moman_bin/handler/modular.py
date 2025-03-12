@@ -37,7 +37,8 @@ class MomanModularHandler(MomanCmdHandler):
         # 校验声明的 interface 对象是否存在
         for interface in root_config.interfaces:
             interface_file = path.joinpath(
-                "interface", interface + ".py"
+                constants.MOMAN_MODULES_FOLDER, interface,
+                constants.MOMAN_INTERFACE_NAME
             )
 
             if not interface_file.exists():
@@ -63,40 +64,35 @@ class MomanModularHandler(MomanCmdHandler):
                 (entry_config.name, entry_config_file)
             )
 
-        # 根据递归文件 BFS 读取所有依赖文件
         module_configs = {entry_config.name: (entry_config, entry_config_file.parent)}
-        queue = [entry_config]
-        while len(queue) > 0:
-            module_config = queue.pop(0)
 
-            deps = module_config.dependencies
-            for dep in deps.values():
-                # 判断指定的 interface 是否存在
-                if dep.interface not in root_config.interfaces:
-                    raise MomanModularError(
-                        "interface %s from %s(%s) not found in project" %
-                        (
-                            dep.interface, module_config.name,
-                            module_config.interface
-                        )
-                    )
+        # 遍历 modules 目录模块文件
+        modules_folder = path.joinpath(constants.MOMAN_MODULES_FOLDER)
+        for module_folder, _, _ in modules_folder.walk():
+            if module_folder.is_file():
+                continue
 
-                # 如果 path 为空，则使用 root/interface/implement 拼接
-                if dep.path is None:
-                    dep.update_path(
-                        path.joinpath(dep.interface, dep.implement)
-                    )
+            module_interface_file = module_folder.joinpath(constants.MOMAN_INTERFACE_NAME)
+            if not module_interface_file.exists():
+                continue
 
-                dep_module_config_file = dep.path.joinpath(
-                    constants.MOMAN_MODULE_CONFIG_NAME
-                )
+            for module_impl_folder, _, _ in module_folder.walk():
+                if module_impl_folder.is_file():
+                    continue
 
-                dep_module_config = MomanModuleConfig.from_dict(
-                    utils.read_yaml(dep_module_config_file)
-                )
+                module_config_file = module_impl_folder.joinpath(constants.MOMAN_MODULE_CONFIG_NAME)
+                if not module_config_file.exists():
+                    continue
 
-                module_configs[dep_module_config.name] = \
-                    (dep_module_config, dep_module_config_file.parent)
+                implement_name = module_impl_folder.name
+                utils.MomanLogger.debug("scan module, name: %s" % implement_name)
+                module_configs[implement_name] = (MomanModuleConfig.from_dict(utils.read_yaml(module_config_file)), module_impl_folder.absolute())
+
+        # 更新 dep 信息
+        for module_config, _ in module_configs.values():
+            for dep_name, dep in module_config.dependencies.items():
+                _, dep_path = module_configs[dep_name]
+                dep.update_path(dep_path)
 
         # 生成配置文件
         config_file = path.joinpath(constants.MOMAN_CONFIG_NAME)
