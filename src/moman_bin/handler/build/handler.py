@@ -27,8 +27,9 @@ class MomanBuildHandler(MomanCmdHandler):
         self.__install_packages(path, modular_info)
 
         modules = modular_info.modules
+        config_map = utils.read_yaml(path.joinpath(constants.MOMAN_CONFIG_NAME))
 
-        wrapper_manager = MomanModuleManagerWrapper(modules)
+        wrapper_manager = MomanModuleManagerWrapper(modules, config_map)
         register_wrapper_manager(wrapper_manager)
 
         # 加载所有的 interfaces

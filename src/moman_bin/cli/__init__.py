@@ -63,6 +63,13 @@ class MomanCliExecutor:
             description="remove module dependencies or python packages for module.",
         )
 
+        parser_modular = sub_parsers.add_parser(
+            "modular",
+            help="normalize current project",
+            description="normalize current project"
+        )
+        parser_modular.set_defaults(func=self.__execute_modular)
+
         parser_build = sub_parsers.add_parser(
             "build",
             help="build this project.",
@@ -145,6 +152,11 @@ class MomanCliExecutor:
 
         config = MomanAddConfig(Path(os.curdir), args.name, dependencies, packages)
         MomanAddHandler().invoke(config)
+
+    def __execute_modular(self, args: Any):
+        from moman_bin.handler.modular import MomanModularHandler, MomanCmdBaseConfig
+
+        MomanModularHandler().invoke(MomanCmdBaseConfig(Path(os.curdir)))
 
     def __execute_build(self, args: Any):
         from moman_bin.handler.build.handler import MomanBuildHandler, MomanCmdBaseConfig

@@ -1,3 +1,4 @@
+from typing import Any
 from types import NoneType
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
@@ -15,6 +16,15 @@ class MomanModuleManager(metaclass=ABCMeta):
         c_interface: str,
         c_implement: str | NoneType = None,
     ) -> MomanModuleInterface:
+        pass
+
+    @abstractmethod
+    def get_config(
+        self,
+        implement: str,
+        key: str,
+        default: Any | NoneType
+    ) -> Any:
         pass
 
     @abstractmethod

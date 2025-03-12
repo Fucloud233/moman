@@ -79,12 +79,16 @@ dependencies: []
 
 # 依赖的 python 模块内容
 python-packages: []
+
+# 配置信息
+config: {{}}
 """
 
 GITIGNORE_FILE_TEMPLATE = """\
 __pycache__
 
 .moman
+config.yaml
 """
 
 ROOT_MODULE_CONFIG_TEMPLATE = """\
@@ -105,4 +109,7 @@ dependencies: []
 
 # 依赖 python 模块列表
 python-packages: []
+
+# 配置信息
+config: {{}}
 """

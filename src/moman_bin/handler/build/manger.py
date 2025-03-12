@@ -31,8 +31,16 @@ class MomanModuleManagerWrapper(MomanModuleManager):
     # 当对象被创建之后，用于缓存在起来，不会重复创建
     __module_contexts: Dict[str, MomanModuleContext] = {}
 
-    def __init__(self, module_config_map: Dict[str, MomanModuleConfig]):
+    # 配置文件 map
+    __config_map: Dict[str, Dict[str, Any]]
+
+    def __init__(
+        self,
+        module_config_map: Dict[str, MomanModuleConfig],
+        config_map: Dict[str, Dict[str, Any]],
+    ):
         self.__module_config_map = module_config_map
+        self.__config_map = config_map
 
     @override
     def get_module(
@@ -71,6 +79,16 @@ class MomanModuleManagerWrapper(MomanModuleManager):
             )
 
         return self.__inner_get_module(p_implement, dep)
+
+    @override
+    def get_config(self, implement: str, key: str, default: Any | NoneType) -> Any:
+        module_config = self.__module_config_map.get(implement, None)
+        if module_config is None:
+            raise MomanBuildError(
+                "current module is invalid, %s" % implement
+            )
+
+        return self.__config_map.get(implement, {}).get(key, default)
 
     def get_entry_module(
         self, entry_name: str, entry_path: Path

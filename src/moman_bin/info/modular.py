@@ -92,6 +92,9 @@ class MomanModularInfo:
                     }
                     for dep in module_config.dependencies.values()
                 },
+                "config": {
+                    key: config_t.value for key, config_t in module_config.config_map.items()
+                },
                 "python-packages": module_config.packages,
             }
             for module_config, path in self.__modules.values()

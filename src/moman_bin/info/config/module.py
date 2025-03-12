@@ -1,5 +1,6 @@
 from types import NoneType
 from typing import Dict, List, Any
+from enum import Enum
 from pathlib import Path
 
 from moman_bin.errors import MomanConfigError
@@ -33,11 +34,18 @@ class MomanModuleDependency:
         return self.__path
 
 
+class MomanConfigType(Enum):
+    String = "string"
+    Number = "number"
+    List = "list"
+
+
 # entry 和 implement 的模块配置文件是一致的
 class MomanModuleConfig(MomanBaseConfig):
     __interface: str
     __dependencies: Dict[str, MomanModuleDependency]
     __packages: List[str]
+    __config_map: Dict[str, MomanConfigType]
 
     def __init__(
         self,
@@ -46,11 +54,13 @@ class MomanModuleConfig(MomanBaseConfig):
         interface: str,
         dependencies: Dict[str, MomanModuleDependency] = {},
         packages: List[str] = [],
+        config_map: Dict[str, MomanConfigType] = {}
     ):
         super().__init__(module_type, name)
         self.__interface = interface
         self.__packages = packages
         self.__dependencies = dependencies
+        self.__config_map = config_map
 
     def add_dep(self, dep: MomanModuleDependency):
         self.dependencies[dep.implement] = dep
@@ -105,9 +115,19 @@ class MomanModuleConfig(MomanBaseConfig):
 
         packages: List[str] = data.get("python-packages", [])
 
+        raw_config_map: Dict[str, Any] = data.get("config", {})
+        config_map: Dict[str, MomanConfigType] = {}
+        for key, config_t in raw_config_map.items():
+            if config_t not in MomanConfigType:
+                raise MomanConfigError(
+                    "type %s not support for config" % config_t
+                )
+
+            config_map[key] = MomanConfigType._value2member_map_[config_t]
+
         return MomanModuleConfig(
             base_config.module_type, base_config.name, interface,
-            dependencies, packages
+            dependencies, packages, config_map
         )
 
     @property
@@ -121,6 +141,10 @@ class MomanModuleConfig(MomanBaseConfig):
     @property
     def packages(self) -> List[str]:
         return self.__packages
+
+    @property
+    def config_map(self) -> Dict[str, MomanConfigType]:
+        return self.__config_map
 
 
 class MomanModuleEntryConfig(MomanModuleConfig):

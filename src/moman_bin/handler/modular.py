@@ -1,4 +1,4 @@
-from typing import override
+from typing import override, Dict, Any
 from pathlib import Path
 
 from .base import MomanCmdHandler, MomanCmdKind, MomanCmdBaseConfig
@@ -7,7 +7,7 @@ from moman_bin import constants, utils
 from moman_bin.errors import MomanModularError
 from moman_bin.info.config.base import MomanModuleType
 from moman_bin.info.config.root import MomanRootConfig
-from moman_bin.info.config.module import MomanModuleConfig
+from moman_bin.info.config.module import MomanModuleConfig, MomanConfigType
 from moman_bin.info.modular import MomanModularInfo
 
 from .import_utils import import_interface
@@ -97,6 +97,38 @@ class MomanModularHandler(MomanCmdHandler):
 
                 module_configs[dep_module_config.name] = \
                     (dep_module_config, dep_module_config_file.parent)
+
+        # 生成配置文件
+        config_file = path.joinpath(constants.MOMAN_CONFIG_NAME)
+        if config_file.exists():
+            origin_config_map: Dict[str, Dict[str, MomanConfigType]] = utils.read_yaml(
+                config_file
+            )
+        else:
+            origin_config_map = {}
+
+        for module, _ in module_configs.values():
+            origin_config = origin_config_map.get(module.name, {})
+            if origin_config is None:
+                origin_config[module.name] = {}
+
+            for key, config_t in module.config_map.items():
+                config_value = origin_config.get(key, None)    
+                if config_value is not None:
+                    continue
+                default_value: Any
+                match config_t:
+                    case MomanConfigType.String:
+                        default_value = ""
+                    case MomanConfigType.Number:
+                        default_value = 0
+                    case MomanConfigType.List:
+                        default_value = []
+                origin_config[key] = default_value
+
+            origin_config_map[module.name] = origin_config
+
+        utils.write_yaml(config_file, origin_config_map)
 
         # 保存解析结果
         result = MomanModularInfo(

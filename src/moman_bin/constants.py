@@ -5,6 +5,7 @@ MOMAN_INTERFACE_FOLDER = "interface"
 
 MOMAN_MODULE_PY_PREFIX = ".py"
 
+MOMAN_CONFIG_NAME = "config.yaml"
 MOMAN_MODULE_CONFIG_NAME = "module.yaml"
 MOMAN_MODULE_INIT_NAME = "__init__.py"
 

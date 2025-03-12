@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import TypeVar
+from typing import TypeVar, Any
 from types import NoneType
 
 
@@ -30,6 +30,13 @@ class MomanModuleInterface(metaclass=ABCMeta):
         return MomanModuleManager.instance().get_module(
             # getInterfaceName 静态函数，获取接口的 interfaceName
             self.__interface_name, self.__implement_name, interface.get_interface_name(), implement
+        )
+
+    def get_config(self, key: str, default: Any | NoneType = None) -> Any:
+        from ..manager import MomanModuleManager
+
+        return MomanModuleManager.instance().get_config(
+            self.__implement_name, key, default
         )
 
     @property
